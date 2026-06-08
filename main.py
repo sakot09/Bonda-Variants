@@ -29,7 +29,6 @@ def numCombinations(candidates):
     
     return total*candidates
 
-<<<<<<< HEAD
 def sample_integer_simplex(n, k):
     bars = sorted(random.sample(range(n + k - 1), k - 1))
     extended = [-1] + bars + [n + k - 1]
@@ -53,37 +52,5 @@ for pref, count in zip(combos, voter_counts):
     print(f"{pref:<12} | {count:>6}")
 print(f"{'-'*12}-+-{'-'*6}")
 print(f"{'Total':<12} | {sum(voter_counts):>6}")
-=======
-def arrangeVoters(candidates):
-    remainingVoters = 501
-    remainingCandidates = candidates - 1
-
-    profile = []
-
-    for i in range(candidates-1):
-        chosen = random.randint(1, remainingVoters-remainingCandidates)
-        remainingVoters-=chosen
-        remainingCandidates-=1
-        profile.append(chosen)
-    profile.append(remainingVoters)
-    return profile
-
-candidates = int(input("Enter number of candidates: "))
-
-arrange = arrangeVoters(candidates)
-numCombos = numCombinations(candidates)
-assigned = []
-combos = getCombinations(candidates)
-for i in range(len(arrange)):
-    chosen = random.randint(0,numCombos)
-    assigned.append(combos[chosen])
-
-
-print(f"\n--- Voter Profile ({candidates} candidates, 501 voters) ---")
-print(f"{'Preference':<12} | {'Voters':>6}")
-print(f"{'-'*12}-+-{'-'*6}")
-for i in range(len(arrange)):
-        print(f"{assigned[i]:<12} | {arrange[i]:>6}")
-print(f"{'-'*12}-+-{'-'*6}")
 print(f"{'Total':<12} | {'501':>6}")
 >>>>>>> 62fcdb336044d782af15f846e6f21fb9c0c71c8b
