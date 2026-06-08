@@ -53,4 +53,3 @@ for pref, count in zip(combos, voter_counts):
 print(f"{'-'*12}-+-{'-'*6}")
 print(f"{'Total':<12} | {sum(voter_counts):>6}")
 print(f"{'Total':<12} | {'501':>6}")
->>>>>>> 62fcdb336044d782af15f846e6f21fb9c0c71c8b
