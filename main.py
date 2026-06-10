@@ -29,61 +29,67 @@ def numCombinations(candidates):
     
     return total*candidates
 
-<<<<<<< HEAD
 def sample_integer_simplex(n, k):
     bars = sorted(random.sample(range(n + k - 1), k - 1))
     extended = [-1] + bars + [n + k - 1]
     return [extended[i+1] - extended[i] - 1 for i in range(k)]
 
-candidates = int(input("Enter number of candidates: "))
-voters = int(input("Enter number of voters: "))
+def compute_borda_scores(candidates, combos, voter_counts):
+    
+    labels = [chr(65 + i) for i in range(candidates)]
+    
+    om_scores  = {c: 0 for c in labels}
+    pm_scores  = {c: 0 for c in labels}
+    avg_scores = {c: 0.0 for c in labels}
 
-if (candidates < 1 or voters < 1):
-    print("Unable to execute")
-    exit()
+    for ballot, count in zip(combos, voter_counts):
+        if count == 0:
+            continue
 
-combos = getCombinations(candidates)
-k = numCombinations(candidates)
-voter_counts = sample_integer_simplex(voters, k)
+        ranked = list(ballot)  
+        unranked = [c for c in labels if c not in ranked]
+        num_ranked = len(ranked)
+        num_unranked = len(unranked)
+        om_unranked_pts = (candidates - 1) - num_ranked  
 
-print(f"\n--- Voter Profile ({candidates} candidates, {voters} voters) ---")
-print(f"{'Preference':<12} | {'Voters':>6}")
-print(f"{'-'*12}-+-{'-'*6}")
-for pref, count in zip(combos, voter_counts):
-    print(f"{pref:<12} | {count:>6}")
-print(f"{'-'*12}-+-{'-'*6}")
-print(f"{'Total':<12} | {sum(voter_counts):>6}")
-=======
-def arrangeVoters(candidates):
-    remainingVoters = 501
-    remainingCandidates = candidates - 1
+        for i, c in enumerate(ranked):
+            om_scores[c] += count * ((candidates - 1) - i)
+        for c in unranked:
+            om_scores[c] += count * om_unranked_pts
 
-    profile = []
+        
+        for i, c in enumerate(ranked):
+            pm_scores[c] += count * ((candidates - 1) - i)
 
-    for i in range(candidates-1):
-        chosen = random.randint(1, remainingVoters-remainingCandidates)
-        remainingVoters-=chosen
-        remainingCandidates-=1
-        profile.append(chosen)
-    profile.append(remainingVoters)
-    return profile
+        remaining_pts = sum((candidates - 1) - (num_ranked + j) for j in range(num_unranked))
+        avg_unranked_pts = (remaining_pts / num_unranked) if num_unranked > 0 else 0
 
-candidates = int(input("Enter number of candidates: "))
+        for i, c in enumerate(ranked):
+            avg_scores[c] += count * ((candidates - 1) - i)
+        for c in unranked:
+            avg_scores[c] += count * avg_unranked_pts
 
-arrange = arrangeVoters(candidates)
-numCombos = numCombinations(candidates)
-assigned = []
-combos = getCombinations(candidates)
-for i in range(len(arrange)):
-    chosen = random.randint(0,numCombos)
-    assigned.append(combos[chosen])
+    return om_scores, pm_scores, avg_scores
+
+def print_profile(candidates, voters, combos, voter_counts):
+    print(f"\n--- Voter Profile ({candidates} candidates, {voters} voters) ---")
+    print(f"{'Preference':<12} | {'Voters':>6}")
+    print(f"{'-'*12}-+-{'-'*6}")
+    for pref, count in zip(combos, voter_counts):
+        print(f"{pref:<12} | {count:>6}")
+    print(f"{'-'*12}-+-{'-'*6}")
+    print(f"{'Total':<12} | {sum(voter_counts):>6}")
+
+def print_scores(candidates, om_scores, pm_scores, avg_scores):
+    labels = [chr(65 + i) for i in range(candidates)]
+    print(f"\n--- Borda Scores ---")
+    print(f"{'Candidate':<10} | {'OM':>8} | {'PM':>8} | {'Avg':>8}")
+    print(f"{'-'*10}-+-{'-'*8}-+-{'-'*8}-+-{'-'*8}")
+    for c in labels:
+        print(f"{c:<10} | {om_scores[c]:>8} | {pm_scores[c]:>8} | {avg_scores[c]:>8.2f}")
+
+def get_ranking(scores):
+    return sorted(scores, key=lambda c: scores[c], reverse=True)
 
 
-print(f"\n--- Voter Profile ({candidates} candidates, 501 voters) ---")
-print(f"{'Preference':<12} | {'Voters':>6}")
-print(f"{'-'*12}-+-{'-'*6}")
-for i in range(len(arrange)):
-        print(f"{assigned[i]:<12} | {arrange[i]:>6}")
-print(f"{'-'*12}-+-{'-'*6}")
-print(f"{'Total':<12} | {'501':>6}")
->>>>>>> 62fcdb336044d782af15f846e6f21fb9c0c71c8b
+
