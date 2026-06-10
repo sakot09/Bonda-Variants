@@ -52,6 +52,7 @@ def compute_borda_scores(candidates, combos, voter_counts):
         num_unranked = len(unranked)
         om_unranked_pts = (candidates - 1) - num_ranked  
 
+
         for i, c in enumerate(ranked):
             om_scores[c] += count * ((candidates - 1) - i)
         for c in unranked:
