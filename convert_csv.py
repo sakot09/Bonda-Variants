@@ -63,9 +63,10 @@ def convert(path):
 
     return mapping, combos, voter_counts
 
-mapping, combos, voter_counts = convert(INPUT_FILE)
-candidates = len(mapping)
+if __name__ == "__main__":
+    mapping, combos, voter_counts = convert(INPUT_FILE)
+    candidates = len(mapping)
 
-om, pm, avg = compute_borda_scores(candidates, combos, voter_counts)
+    om, pm, avg = compute_borda_scores(candidates, combos, voter_counts)
 
-print_scores(candidates, om, pm, avg)
+    print_scores(candidates, om, pm, avg)
