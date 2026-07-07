@@ -92,5 +92,8 @@ def print_scores(candidates, om_scores, pm_scores, avg_scores):
 def get_ranking(scores):
     return sorted(scores, key=lambda c: scores[c], reverse=True)
 
+def format_to_colley(combos, voter_counts):
+    return dict(zip(combos, voter_counts))
+
 
 
