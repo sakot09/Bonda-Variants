@@ -2,6 +2,7 @@ from main import getCombinations, numCombinations, sample_integer_simplex, compu
 from colley_matrix import colley_matrix, win_loss, b_values, borda_colley_scores, colley_ranking
 import random
 from convert_csv import convert
+import copy
 
 NUM_SIMULATIONS = 1000
 VOTERS = 1001
@@ -134,12 +135,54 @@ def find_all_disagree(candidates):
             print(f"Avg winner:    {avg_rank[0]}")
             print(f"Colley winner: {colley_rank[0]}")
     
+def modify_ballot(profile, ballot, candidate):
+    p2 = copy.deepcopy(profile)
+    p2[ballot] -= 1
+    if p2[ballot] == 0:
+        del p2[ballot]
+    new_ballot = ballot + candidate
+    if new_ballot in p2:
+        p2[new_ballot] += 1
+    else:
+        p2[new_ballot] = 1
+    return p2
 
+def get_colley_winner(profile, candidates):
+    matrix = colley_matrix(profile, candidates)
+    wl = win_loss(profile, candidates)
+    b = b_values(wl, candidates)
+    scores = borda_colley_scores(matrix, b)
+    return colley_ranking(scores, candidates)[0]
 
-for candidates in [3, 4, 5]:
-    run_simulations(candidates, VOTERS, NUM_SIMULATIONS)
+def test_dominated_power(candidates, voters, num_simulations):
+    labels = [chr(65 + i) for i in range(candidates)]
+    combos = getCombinations(candidates)
+    k = numCombinations(candidates)
+    violations = 0
 
-run_real_data(INPUT_FILE)
+    for _ in range(num_simulations):
+        voter_counts = sample_integer_simplex(voters, k)
+        profile = format_to_colley(combos, voter_counts)
 
-find_all_disagree(4)
-find_all_disagree(5)
+        winner_p1 = get_colley_winner(profile, candidates)
+
+        ballots_with_unranked = [b for b in profile if profile[b] > 0 and len(b) < candidates]
+        if not ballots_with_unranked:
+            continue
+
+        ballot = random.choice(ballots_with_unranked)
+        unranked = [c for c in labels if c not in ballot]
+        candidate_to_add = random.choice(unranked)
+
+        p2 = modify_ballot(profile, ballot, candidate_to_add)
+        winner_p2 = get_colley_winner(p2, candidates)
+
+        winner_was_on_ballot = winner_p1 in ballot
+
+        if winner_was_on_ballot and winner_p1 != winner_p2:
+            violations += 1
+
+    print(f"\n=== Dominated Power Property Test ({candidates} candidates, {num_simulations} simulations) ===")
+    print(f"Violations: {violations}/{num_simulations}")
+
+test_dominated_power(4, VOTERS, NUM_SIMULATIONS)
