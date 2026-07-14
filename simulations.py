@@ -154,11 +154,12 @@ def get_colley_winner(profile, candidates):
     scores = borda_colley_scores(matrix, b)
     return colley_ranking(scores, candidates)[0]
 
-def test_dominated_power(candidates, voters, num_simulations):
+def test_properties(candidates, voters, num_simulations):
     labels = [chr(65 + i) for i in range(candidates)]
     combos = getCombinations(candidates)
     k = numCombinations(candidates)
-    violations = 0
+    violations_power = 0
+    violations_indifference = 0
 
     for _ in range(num_simulations):
         voter_counts = sample_integer_simplex(voters, k)
@@ -179,10 +180,19 @@ def test_dominated_power(candidates, voters, num_simulations):
 
         winner_was_on_ballot = winner_p1 in ballot
 
+        winner_was_unranked = winner_p1 not in ballot
+        added_candidate_not_winner = candidate_to_add != winner_p2
+
+        if added_candidate_not_winner and winner_was_unranked and winner_p1 != winner_p2:
+            violations_indifference += 1
+
         if winner_was_on_ballot and winner_p1 != winner_p2:
-            violations += 1
+            violations_power += 1
 
     print(f"\n=== Dominated Power Property Test ({candidates} candidates, {num_simulations} simulations) ===")
-    print(f"Violations: {violations}/{num_simulations}")
+    print(f"Violations: {violations_power}/{num_simulations}")
+    print("")
+    print(f"\n=== Bottom Indifference Property Test ({candidates} candidates, {num_simulations} simulations) ===")
+    print(f"Violations: {violations_indifference}/{num_simulations}")
 
-test_dominated_power(4, VOTERS, NUM_SIMULATIONS)
+test_properties(4, VOTERS, NUM_SIMULATIONS)
