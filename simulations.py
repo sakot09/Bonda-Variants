@@ -136,10 +136,10 @@ def find_all_disagree(candidates):
     
 
 
-"""for candidates in [3, 4, 5]:
+for candidates in [3, 4, 5]:
     run_simulations(candidates, VOTERS, NUM_SIMULATIONS)
 
-run_real_data(INPUT_FILE)"""
+run_real_data(INPUT_FILE)
 
 find_all_disagree(4)
 find_all_disagree(5)
