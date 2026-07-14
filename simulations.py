@@ -1,5 +1,6 @@
 from main import getCombinations, numCombinations, sample_integer_simplex, compute_borda_scores, get_ranking, format_to_colley
 from colley_matrix import colley_matrix, win_loss, b_values, borda_colley_scores, colley_ranking
+import random
 from convert_csv import convert
 
 NUM_SIMULATIONS = 1000
@@ -100,42 +101,39 @@ def run_real_data(path):
     print(f"Avg ranking:    {named(avg_rank)}")
     print(f"Colley ranking: {named(colley_rank)}")
 
-def find_all_disagree(candidates, voters):
-    combos = getCombinations(candidates)
-    k = numCombinations(candidates)
- 
-    attempts = 0
+def find_all_disagree(candidates):
+    
+    labels = [chr(65 + i) for i in range(candidates)]
+    short_combos = labels + [a+b for a in labels for b in labels if a != b]
+
     found = False
- 
+
     while not found:
-        attempts += 1
-        voter_counts = sample_integer_simplex(voters, k)
-        profile = format_to_colley(combos, voter_counts)
- 
-        om, pm, avg = compute_borda_scores(candidates, combos, voter_counts)
- 
+        voter_counts = [random.randint(0, 100) for _ in range(len(short_combos))]
+        profile = format_to_colley(short_combos, voter_counts)
+
+        om, pm, avg = compute_borda_scores(candidates, short_combos, voter_counts)
         om_rank    = get_ranking(om)
         pm_rank    = get_ranking(pm)
         avg_rank   = get_ranking(avg)
- 
+
         matrix = colley_matrix(profile, candidates)
         wl = win_loss(profile, candidates)
         b = b_values(wl, candidates)
         colley_scores = borda_colley_scores(matrix, b)
         colley_rank = colley_ranking(colley_scores, candidates)
- 
+
         winners = [om_rank[0], pm_rank[0], avg_rank[0], colley_rank[0]]
- 
-        if len(set(winners)) == 4:
+
+        if len(set(winners)) == candidates:
             found = True
-            print(f"\n=== All Methods Disagree ({candidates} candidates) ===")
-            print(f"Found after {attempts} attempts\n")
+            print(f"\n=== {candidates} Candidates ===")
             print(f"Profile: {profile}\n")
             print(f"OM winner:     {om_rank[0]}")
             print(f"PM winner:     {pm_rank[0]}")
             print(f"Avg winner:    {avg_rank[0]}")
             print(f"Colley winner: {colley_rank[0]}")
- 
+    
 
 
 """for candidates in [3, 4, 5]:
@@ -143,4 +141,5 @@ def find_all_disagree(candidates, voters):
 
 run_real_data(INPUT_FILE)"""
 
-find_all_disagree(4, VOTERS)
+find_all_disagree(4)
+find_all_disagree(5)
