@@ -11,7 +11,7 @@ combos = getCombinations(candidates)
 k = numCombinations(candidates)
 voter_counts = sample_integer_simplex(voters, k)
 
-om, pm, avg = compute_borda_scores(candidates, combos, voter_counts)
+om, pm, avg, mbc = compute_borda_scores(candidates, combos, voter_counts)
 print_profile(candidates, voters, combos, voter_counts)
 
 print_scores(candidates, om, pm, avg)

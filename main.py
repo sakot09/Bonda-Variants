@@ -41,6 +41,7 @@ def compute_borda_scores(candidates, combos, voter_counts):
     om_scores  = {c: 0 for c in labels}
     pm_scores  = {c: 0 for c in labels}
     avg_scores = {c: 0.0 for c in labels}
+    mbc_scores = {c: 0 for c in labels}
 
     for ballot, count in zip(combos, voter_counts):
         if count == 0:
@@ -50,15 +51,13 @@ def compute_borda_scores(candidates, combos, voter_counts):
         unranked = [c for c in labels if c not in ranked]
         num_ranked = len(ranked)
         num_unranked = len(unranked)
-        om_unranked_pts = (candidates - 1) - num_ranked  
-
+        om_unranked_pts = (candidates - 1) - num_ranked
 
         for i, c in enumerate(ranked):
             om_scores[c] += count * ((candidates - 1) - i)
         for c in unranked:
             om_scores[c] += count * om_unranked_pts
 
-        
         for i, c in enumerate(ranked):
             pm_scores[c] += count * ((candidates - 1) - i)
 
@@ -70,7 +69,10 @@ def compute_borda_scores(candidates, combos, voter_counts):
         for c in unranked:
             avg_scores[c] += count * avg_unranked_pts
 
-    return om_scores, pm_scores, avg_scores
+        for i, c in enumerate(ranked):
+            mbc_scores[c] += count * (num_ranked - i)
+
+    return om_scores, pm_scores, avg_scores, mbc_scores
 
 def print_profile(candidates, voters, combos, voter_counts):
     print(f"\n--- Voter Profile ({candidates} candidates, {voters} voters) ---")
