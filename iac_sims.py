@@ -3,6 +3,7 @@ from colley_matrix import colley_matrix, win_loss, b_values, borda_colley_scores
 import random
 from convert_csv import convert
 import copy
+import os
 
 NUM_SIMULATIONS = 10000
 VOTERS = 1001
@@ -128,7 +129,44 @@ def run_real_data(path):
     print(f"MBC ranking:    {named(mbc_rank)}")
     print(f"Colley ranking: {named(colley_rank)}")
 
-    
+def run_real_data_comparison(filepaths):
+    disagree = []
+    agree = 0
+
+    for path in filepaths:
+        mapping, combos, voter_counts = convert(path)
+        candidates = len(mapping)
+        profile = format_to_colley(combos, voter_counts)
+
+        om, pm, avg, mbc = compute_borda_scores(candidates, combos, voter_counts)
+        avg_rank = get_ranking(avg)
+
+        matrix = colley_matrix(profile, candidates)
+        wl = win_loss(profile, candidates)
+        b = b_values(wl, candidates)
+        colley_scores = borda_colley_scores(matrix, b)
+        colley_rank = colley_ranking(colley_scores, candidates)
+
+        reverse_map = {v: k for k, v in mapping.items()}
+
+        if avg_rank[0] != colley_rank[0]:
+            disagree.append({
+                "file": path,
+                "avg_winner": reverse_map[avg_rank[0]],
+                "colley_winner": reverse_map[colley_rank[0]]
+            })
+        else:
+            agree += 1
+
+    total = len(filepaths)
+    print(f"\n=== Borda Avg vs Colley: Real Data Comparison ===")
+    print(f"Agree: {agree}/{total} ({100*agree/total:.1f}%)")
+    print(f"Disagree: {len(disagree)}/{total} ({100*len(disagree)/total:.1f}%)")
+
+    if disagree:
+        print(f"\nElections where winners disagreed:")
+        for d in disagree:
+            print(f"  {d['file']}: Avg={d['avg_winner']}, Colley={d['colley_winner']}")
 
 def find_all_disagree(candidates):
     
@@ -238,5 +276,6 @@ def test_properties(candidates, voters, num_simulations):
     print(f"Violations: {violations_power}/{num_simulations}")
     print(f"\n=== Bottom Indifference Property Test ({candidates} candidates, {num_simulations} simulations) ===")
     print(f"Violations: {violations_indifference}/{num_simulations}")
-    
-run_real_data(INPUT_FILE)
+
+
+run_simulations(4, VOTERS, NUM_SIMULATIONS)
