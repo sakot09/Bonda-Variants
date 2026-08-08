@@ -1,8 +1,8 @@
-from main import compute_borda_scores, get_ranking, format_to_colley
+from main import get_ranking, sample_integer_simplex
 from colley_matrix import colley_matrix, win_loss, b_values, borda_colley_scores, colley_ranking
 import random
 import copy
-import math
+import numpy as np
 
 NUM_SIMULATIONS = 10000
 VOTERS = 1001
@@ -19,6 +19,8 @@ def spatial_model(candidates):
     colleypm_rank = colleypm_win = 0
     colleyavg_rank = colleyavg_win = 0
     colleymbc_rank = colleymbc_win = 0
+
+    lengths = [i for i in range(1, candidates+1)]
 
     for _ in range(NUM_SIMULATIONS):
         labels = [chr(65 + i) for i in range(candidates)]
@@ -38,6 +40,12 @@ def spatial_model(candidates):
 
             ranked = sorted(labels, key=lambda c: abs(voter_pt - candidate_distribution[c]))
             ballot = "".join(ranked)
+
+            probs = prob_generation(candidates)
+
+            chosen_length = random.choices(lengths, weights=probs, k=1)[0]
+
+            ballot = ballot[:chosen_length]
 
             if ballot in voting_dist:
                 voting_dist[ballot]+=1
@@ -160,6 +168,11 @@ def get_colley_winner(profile, candidates):
     scores = borda_colley_scores(matrix, b)
     return colley_ranking(scores, candidates)[0]
 
+def prob_generation(candidates):
+    raw = np.random.rand(candidates)
+    probabilities = raw / np.sum(raw)
+    return probabilities
 
-spatial_model(4)
+
+
 
