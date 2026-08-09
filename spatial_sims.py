@@ -34,14 +34,14 @@ def spatial_model(candidates):
 
         voting_dist = dict()
 
+        probs = prob_generation(candidates)
+
         for i in range(VOTERS):
 
             voter_pt = random.gauss(0,1)
 
             ranked = sorted(labels, key=lambda c: abs(voter_pt - candidate_distribution[c]))
             ballot = "".join(ranked)
-
-            probs = prob_generation(candidates)
 
             chosen_length = random.choices(lengths, weights=probs, k=1)[0]
 
