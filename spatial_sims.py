@@ -21,6 +21,7 @@ def spatial_model(candidates):
     colleymbc_rank = colleymbc_win = 0
 
     lengths = [i for i in range(1, candidates+1)]
+    del lengths[-2]
 
     for _ in range(NUM_SIMULATIONS):
         labels = [chr(65 + i) for i in range(candidates)]
@@ -169,7 +170,7 @@ def get_colley_winner(profile, candidates):
     return colley_ranking(scores, candidates)[0]
 
 def prob_generation(candidates):
-    raw = np.random.rand(candidates)
+    raw = np.random.rand(candidates-1)
     probabilities = raw / np.sum(raw)
     return probabilities
 
